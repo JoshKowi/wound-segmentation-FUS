@@ -23,25 +23,24 @@ from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 
-from keras.models import Model
-from keras import layers
-from keras.layers import Input
-from keras.layers import Activation
-from keras.layers import Concatenate
-from keras.layers import Add
-from keras.layers import Dropout
-from keras.layers import BatchNormalization
-from keras.layers import Conv2D
-from keras.layers import DepthwiseConv2D
-from keras.layers import ZeroPadding2D
-from keras.layers import AveragePooling2D
-from keras.layers import Layer
-from tensorflow.keras.layers import InputSpec
-from tensorflow.keras.utils import get_source_inputs
-from keras import backend as K
-from keras.applications import imagenet_utils
-from keras.utils import conv_utils
-from keras.utils.data_utils import get_file
+from keras.api.models import Model
+from keras.api import layers
+from keras.api.layers import Input
+from keras.api.layers import Activation
+from keras.api.layers import Concatenate
+from keras.api.layers import Add
+from keras.api.layers import Dropout
+from keras.api.layers import BatchNormalization
+from keras.api.layers import Conv2D
+from keras.api.layers import DepthwiseConv2D
+from keras.api.layers import ZeroPadding2D
+from keras.api.layers import AveragePooling2D
+from keras.api.layers import Layer
+from keras.api.layers import InputSpec
+from tensorflow.keras import backend as K # doesnt work with keras.api
+from keras.api.applications import imagenet_utils
+from tensorflow.python.keras.utils import conv_utils # doesnt work with keras.api
+from keras.api.utils import get_file, get_source_inputs
 
 WEIGHTS_PATH_X = "https://github.com/bonlime/keras-deeplab-v3-plus/releases/download/1.1/deeplabv3_xception_tf_dim_ordering_tf_kernels.h5"
 WEIGHTS_PATH_MOBILE = "https://github.com/bonlime/keras-deeplab-v3-plus/releases/download/1.1/deeplabv3_mobilenetv2_tf_dim_ordering_tf_kernels.h5"

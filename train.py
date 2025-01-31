@@ -1,7 +1,7 @@
-from tensorflow.keras.optimizers import Adam
-from keras.callbacks import EarlyStopping
-from keras.models import load_model
-from keras.utils.generic_utils import CustomObjectScope
+from keras.api.optimizers import Adam
+from keras.api.callbacks import EarlyStopping
+from keras.api.models import load_model
+from keras.api.utils import CustomObjectScope
 
 from models.unets import Unet2D
 from models.deeplab import Deeplabv3, relu6, DepthwiseConv2D, BilinearUpsampling
@@ -33,9 +33,9 @@ data_gen = DataGen('./data/' + dataset + '/', split_ratio=0.2, x=input_dim_x, y=
 ######### MobilenetV2 ##########
 model = Deeplabv3(input_shape=(input_dim_x, input_dim_y, 3), classes=1)
 model_name = 'MobilenetV2'
-with CustomObjectScope({'relu6': relu6,'DepthwiseConv2D': DepthwiseConv2D, 'BilinearUpsampling': BilinearUpsampling}):
-    model = load_model('training_history/2019-12-19 01%3A53%3A15.480800.hdf5'
-                       , custom_objects={'dice_coef': dice_coef, 'precision':precision, 'recall':recall})
+#with CustomObjectScope({'relu6': relu6,'DepthwiseConv2D': DepthwiseConv2D, 'BilinearUpsampling': BilinearUpsampling}):
+#    model = load_model('training_history/2019-12-19 01%3A53%3A15.480800.hdf5'
+#                       , custom_objects={'dice_coef': dice_coef, 'precision':precision, 'recall':recall})
 
 ######### Vgg16 ##########
 # model, model_name = FCN_Vgg16_16s(input_shape=(input_dim_x, input_dim_y, 3))
@@ -57,8 +57,8 @@ es = EarlyStopping(monitor='val_dice_coef', patience=200, mode='max', restore_be
 #                             , validation_split=0.2, verbose=1, callbacks=[])
 
 model.summary()
-model.compile(optimizer=Adam(lr=learning_rate), loss=loss, metrics=[dice_coef, precision, recall])
-training_history = model.fit_generator(data_gen.generate_data(batch_size=batch_size, train=True),
+model.compile(optimizer=Adam(learning_rate=learning_rate), loss=loss, metrics=[dice_coef, precision, recall])
+training_history = model.fit(data_gen.generate_data(batch_size=batch_size, train=True),
                                        steps_per_epoch=int(data_gen.get_num_data_points(train=True) / batch_size),
                                        callbacks=[es],
                                        validation_data=data_gen.generate_data(batch_size=batch_size, val=True),
