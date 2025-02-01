@@ -1,6 +1,6 @@
 import os
-from keras.api.models import Model
-from keras.api.layers import Input, Conv2D, MaxPooling2D, Dropout, UpSampling2D
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Dropout, UpSampling2D
 from utils.BilinearUpSampling import BilinearUpSampling2D
 
 
