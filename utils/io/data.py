@@ -63,9 +63,9 @@ class DataGen:
                         image = cv2.imread(self.path_test_images + sample_image_filename, 1)
                         label = cv2.imread(self.path_test_labels + sample_label_filename, 0)
                     # image, label = self.change_color_space(image, label, self.color_space)
-                    label = np.expand_dims(label, axis=2)
+                    label = np.expand_dims(label, axis=2)                       # Add dimension so it fits image
                     if image.shape[0] == self.x and image.shape[1] == self.y:
-                        image_batch.append(image.astype("float32"))
+                        image_batch.append(image.astype("float32"))             # change value type from int to float
                     else:
                         print('the input image shape is not {}x{}'.format(self.x, self.y))
                     if label.shape[0] == self.x and label.shape[1] == self.y:
@@ -100,7 +100,9 @@ class DataGen:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
             label = cv2.cvtColor(label, cv2.COLOR_BGR2LAB)
         return image, label
+
 def normalize(arr):
+    #Normalize image array (values between 0 and 1) by dividing through min max distance
     diff = np.amax(arr) - np.amin(arr)
     diff = 255 if diff == 0 else diff
     arr = arr / np.absolute(diff)
