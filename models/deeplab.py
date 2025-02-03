@@ -84,14 +84,15 @@ class BilinearUpsampling(Layer):
                 input_shape[3])
 
     def call(self, inputs):
+        input_shape = tf.shape(inputs)
+        height, width = input_shape[1], input_shape[2]
         if self.upsampling:
-            return tf.compat.v1.image.resize_bilinear(inputs, (inputs.shape[1] * self.upsampling[0],
-                                                       inputs.shape[2] * self.upsampling[1]),
-                                              align_corners=True)
+            new_height = height * self.upsampling[0]
+            new_width = width * self.upsampling[1]
         else:
-            return tf.compat.v1.image.resize_bilinear(inputs, (self.output_size[0],
-                                                       self.output_size[1]),
-                                              align_corners=True)
+            new_height = self.output_size[0]
+            new_width = self.output_size[1]
+        return tf.image.resize(inputs, (new_height, new_width), method="bilinear", antialias=True)
 
     def get_config(self):
         config = {'upsampling': self.upsampling,
