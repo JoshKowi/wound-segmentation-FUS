@@ -47,12 +47,12 @@ model_name = 'MobilenetV2'
 # plot_model(model, to_file=model_name+'.png')
 
 # training
-batch_size = 2
+batch_size = 16
 epochs = 2000
 learning_rate = 1e-4
 loss = 'binary_crossentropy'
 
-es = EarlyStopping(monitor='val_dice_coef', patience=200, mode='max', restore_best_weights=True)
+es = EarlyStopping(monitor='val_dice_coef', patience=30, mode='max', restore_best_weights=True)
 #training_history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs
 #                             , validation_split=0.2, verbose=1, callbacks=[])
 
