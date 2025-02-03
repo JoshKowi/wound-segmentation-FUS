@@ -8,7 +8,7 @@ from models.deeplab import Deeplabv3, relu6, DepthwiseConv2D, BilinearUpsampling
 from models.FCN import FCN_Vgg16_16s
 from models.SegNet import SegNet
 
-from utils.learning.metrics import dice_coef, precision, recall
+from utils.learning.metrics import dice_coef, precision, recall, IoU
 from utils.learning.losses import dice_coef_loss
 from utils.io.data import DataGen, save_results, save_history, load_data
 
@@ -18,10 +18,10 @@ from utils.io.data import DataGen, save_results, save_history, load_data
 #os.system('export PATH=/usr/local/cuda-10.0/bin:/usr/local/cuda-10.0/NsightCompute-1.0${PATH:+:${PATH}}')
 
 # Varibales and data generator
-input_dim_x=224
-input_dim_y=224
+input_dim_x=512
+input_dim_y=512
 n_filters = 32
-dataset = 'Medetec_foot_ulcer_224'
+dataset = 'Foot_Ulcer_Segmentation_Challenge'
 data_gen = DataGen('./data/' + dataset + '/', split_ratio=0.2, x=input_dim_x, y=input_dim_y)
 
 ######### Get the deep learning models #########
@@ -57,7 +57,7 @@ es = EarlyStopping(monitor='val_dice_coef', patience=200, mode='max', restore_be
 #                             , validation_split=0.2, verbose=1, callbacks=[])
 
 model.summary()
-model.compile(optimizer=Adam(learning_rate=learning_rate), loss=loss, metrics=[dice_coef, precision, recall])
+model.compile(optimizer=Adam(learning_rate=learning_rate), loss=loss, metrics=[IoU, dice_coef, precision, recall])
 training_history = model.fit(data_gen.generate_data(batch_size=batch_size, train=True),
                                        steps_per_epoch=int(data_gen.get_num_data_points(train=True) / batch_size),
                                        callbacks=[es],

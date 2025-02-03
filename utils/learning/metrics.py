@@ -48,6 +48,13 @@ def precision(truth, prediction):
     return TP / (TP + FP + K.epsilon())
 
 
+# Intersection over Union
+def IoU(truth, prediction):
+    intersection = K.sum(K.round(K.clip((truth + prediction)*0.5, 0, 1)))
+    union = K.sum(K.round(K.clip(truth + prediction, 0, 1)))
+    return intersection / (union + K.epsilon())
+
+
 def f1(y_true, y_pred):
     def recall(y_true, y_pred):
         """Recall metric.
