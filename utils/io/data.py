@@ -75,7 +75,7 @@ class DataGen:
                     # print('label: ', label_file_list[i])
                     if self.path_val_images and val:                   # If validation data is stored seperatly
                         image = cv2.imread(self.path_val_images + sample_image_filename, 1)
-                        image = cv2.imread(self.path_val_images + sample_label_filename, 0)
+                        label = cv2.imread(self.path_val_images + sample_label_filename, 0)
                     elif train or val:
                         image = cv2.imread(self.path_train_images + sample_image_filename, 1)
                         label = cv2.imread(self.path_train_labels + sample_label_filename, 0)
