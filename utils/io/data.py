@@ -9,7 +9,12 @@ import matplotlib.pyplot as plt
 
 class DataGen:
 
-    def __init__(self, path, split_ratio, x, y, color_space='rgb'):
+    def __init__(self, path, x, y, split_ratio=None, color_space='rgb'):
+        """
+        path: Define which dataset to use
+        x, y: Image size
+        split_ratio: ratio for splitting training data into train and validation - leave empty for already splitted data
+        """
         self.x = x
         self.y = y
         self.path = path
@@ -18,14 +23,26 @@ class DataGen:
         self.path_train_labels = path + "train/labels/"
         self.path_test_images = path + "test/images/"
         self.path_test_labels = path + "test/labels/"
+        self.path_val_images = None
+        self.path_val_labels = None
         self.image_file_list = get_png_filename_list(self.path_train_images)
         self.label_file_list = get_png_filename_list(self.path_train_labels)
         self.image_file_list[:], self.label_file_list[:] = self.shuffle_image_label_lists_together()
-        self.split_index = int(split_ratio * len(self.image_file_list))
-        self.x_train_file_list = self.image_file_list[self.split_index:]
-        self.y_train_file_list = self.label_file_list[self.split_index:]
-        self.x_val_file_list = self.image_file_list[:self.split_index]
-        self.y_val_file_list = self.label_file_list[:self.split_index]
+        if split_ratio:
+            # Split Training data into test and validation
+            self.split_index = int(split_ratio * len(self.image_file_list))
+            self.x_train_file_list = self.image_file_list[self.split_index:]
+            self.y_train_file_list = self.label_file_list[self.split_index:]
+            self.x_val_file_list = self.image_file_list[:self.split_index]
+            self.y_val_file_list = self.label_file_list[:self.split_index]
+        else:
+            self.x_train_file_list = self.image_file_list
+            self.y_train_file_list = self.label_file_list
+            # Get Validation Data from specified directory
+            self.path_val_images = path + "validation/images/"
+            self.path_val_labels = path + "validation/labels/"
+            self.x_val_file_list = get_png_filename_list(self.path_val_images)
+            self.y_val_file_list = get_png_filename_list(self.path_val_labels)
         self.x_test_file_list = get_png_filename_list(self.path_test_images)
         self.y_test_file_list = get_png_filename_list(self.path_test_labels)
 

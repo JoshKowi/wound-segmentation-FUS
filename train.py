@@ -21,8 +21,8 @@ from utils.io.data import DataGen, save_results, save_history, load_data
 input_dim_x=512
 input_dim_y=512
 n_filters = 32
-dataset = 'Foot_Ulcer_Segmentation_Challenge'
-data_gen = DataGen('./data/' + dataset + '/', split_ratio=0.2, x=input_dim_x, y=input_dim_y)
+dataset = 'fuseg_augmented'
+data_gen = DataGen('./data/' + dataset + '/', x=input_dim_x, y=input_dim_y)
 
 ######### Get the deep learning models #########
 
