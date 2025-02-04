@@ -47,7 +47,7 @@ model_name = 'MobilenetV2'
 # plot_model(model, to_file=model_name+'.png')
 
 # training
-batch_size = 16
+batch_size = 8
 epochs = 2000
 learning_rate = 1e-4
 loss = 'binary_crossentropy'
