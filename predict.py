@@ -1,23 +1,23 @@
 import cv2
-from keras.models import load_model
-from keras.utils.generic_utils import CustomObjectScope
+from tensorflow.keras.models import load_model
+from tensorflow.keras.utils import CustomObjectScope
 
 from models.unets import Unet2D
 from models.deeplab import Deeplabv3, relu6, BilinearUpsampling, DepthwiseConv2D
 from models.FCN import FCN_Vgg16_16s
 
-from utils.learning.metrics import dice_coef, precision, recall
+from utils.learning.metrics import dice_coef, precision, recall, IoU
 from utils.BilinearUpSampling import BilinearUpSampling2D
 from utils.io.data import load_data, save_results, save_rgb_results, save_history, load_test_images, DataGen
 
 
 # settings
-input_dim_x = 224
-input_dim_y = 224
+input_dim_x = 512
+input_dim_y = 512
 color_space = 'rgb'
-path = './data/Medetec_foot_ulcer_224/'
-weight_file_name = '2019-12-19 01%3A53%3A15.480800.hdf5'
-pred_save_path = '2019-12-19 01%3A53%3A15.480800/'
+path = './data/fuseg_small/'
+weight_file_name = '2025-02-05 10:22:01.366389.hdf5'
+pred_save_path = '2025-02-05-366389-short_train-14eps/'
 
 data_gen = DataGen(path, split_ratio=0.0, x=input_dim_x, y=input_dim_y, color_space=color_space)
 x_test, test_label_filenames_list = load_test_images(path)
@@ -54,6 +54,7 @@ model = load_model('./training_history/' + weight_file_name
                , custom_objects={'recall':recall,
                                  'precision':precision,
                                  'dice_coef': dice_coef,
+                                 'IoU': IoU,
                                  'relu6':relu6,
                                  'DepthwiseConv2D':DepthwiseConv2D,
                                  'BilinearUpsampling':BilinearUpsampling})
