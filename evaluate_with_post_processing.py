@@ -2,18 +2,22 @@ import cv2
 import numpy as np
 import multiprocessing
 from tqdm import tqdm
+import os
+import argparse
 from utils.io.data import get_png_filename_list
 from utils.postprocessing.hole_filling import fill_holes
 from utils.postprocessing.remove_small_noise import remove_small_areas
 
 
-def evaluate(threshold, file_list, label_path, post_prosecced_path):
+def evaluate(pred_path, threshold, file_list, label_path):
+    post_processed_path = pred_path
+
     false_positives = 0
     false_negatives = 0
     true_positives = 0
 
     for img_name in tqdm(file_list):
-        img = cv2.imread(pred_dir + img_name)
+        img = cv2.imread(pred_path + img_name)
         _, threshed = cv2.threshold(img, threshold, 255, type=cv2.THRESH_BINARY)
         ################################################################################################################
         # call image post processing functions
@@ -21,13 +25,15 @@ def evaluate(threshold, file_list, label_path, post_prosecced_path):
         filled = fill_holes(threshed, threshold,0.1)
         denoised = remove_small_areas(filled, threshold, 0.05)
         ################################################################################################################
-        cv2.imwrite('whatever/filled/' + img_name, filled)
-        cv2.imwrite('whatever/post_processed/' + img_name, denoised)
+        os.makedirs(post_processed_path + 'filled', exist_ok=True)
+        os.makedirs(post_processed_path + 'post_processed', exist_ok=True)
+        cv2.imwrite(post_processed_path + 'filled/' + img_name, filled)
+        cv2.imwrite(post_processed_path + 'post_processed/' + img_name, denoised)
 
 
     for filename in tqdm(file_list):
         label = cv2.imread(label_path + filename,0)
-        post_prosecced = cv2.imread(post_prosecced_path + filename,0)
+        post_prosecced = cv2.imread(post_processed_path + 'post_processed/' + filename, 0)
         xdim = label.shape[0]
         ydim = label.shape[1]
         for x in range(xdim):
@@ -43,7 +49,7 @@ def evaluate(threshold, file_list, label_path, post_prosecced_path):
     Dice = 2*float(true_positives) / (2*true_positives + false_negatives + false_positives)
 
     print("--------------------------------------------------------")
-    print("Weight file: ",post_prosecced_path.rsplit("/")[1])
+    print("Weight file: ", post_processed_path.rsplit("/")[1])
     print("--------------------------------------------------------")
     print("Threshold: ", threshold)
     print("True  pos = " + str(true_positives))
@@ -52,14 +58,18 @@ def evaluate(threshold, file_list, label_path, post_prosecced_path):
     print("IOU = " + str(IOU))
     print("Dice = " + str(Dice))
 
+def exec_evaluate(pred_path, label_path, thresholds=[120]):
+    """Post processes model-output images and evaluates final results"""
+    img_filename_list = get_png_filename_list(pred_path)
+    print(img_filename_list)
+    # test your own thresholds
+    for threshold in thresholds:
+        evaluate(pred_path, threshold, img_filename_list, label_path)
 
-# change to your own folder names
-pred_dir = './whatever/'
-img_filename_list = get_png_filename_list(pred_dir)
-print(img_filename_list)
-label_path = './data/azh_wound_care_center_dataset_patches/test/labels/'
-post_path = './whatever/post_processed/'
-num_threads = multiprocessing.cpu_count()
-# test your own threshold
-threshold = 120
-evaluate(threshold, img_filename_list, label_path, post_path)
+
+if __name__ == "__main__":
+    # adapt as needed
+    pred_dir = './data/fuseg_augmented/test/predictions/02-05-366389-short_train-14eps/'
+    label_path = './data/fuseg_augmented/test/labels/'
+    thresholds = [117]  # currentmax: 117
+    exec_evaluate(pred_dir, label_path, thresholds=thresholds)

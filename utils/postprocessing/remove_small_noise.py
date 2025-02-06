@@ -4,7 +4,7 @@ from scipy.ndimage.measurements import label
 
 
 def remove_small_areas(img, threshold, rate):
-    structure = np.ones((3, 3, 3), dtype=np.int)
+    structure = np.ones((3, 3, 3), dtype=int)
     labeled, ncomponents = label(img, structure)
     # print(labeled.shape, ncomponents)
     count_list = []

@@ -5,7 +5,7 @@ from scipy.ndimage.measurements import label
 
 def fill_holes(img, threshold, rate):
     binary_img = np.where(img > threshold, 0, 1) #reversed image
-    structure = np.ones((3, 3, 3), dtype=np.int)
+    structure = np.ones((3, 3, 3), dtype=int)
     labeled, ncomponents = label(binary_img, structure)
     # print(labeled.shape, ncomponents)
     count_list = []
