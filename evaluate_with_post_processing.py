@@ -19,13 +19,13 @@ def post_process_predictions(pred_path, threshold):
         filled = fill_holes(threshed, threshold,0.1)
         denoised = remove_small_areas(filled, threshold, 0.05)
         ################################################################################################################
-        os.makedirs(pred_path + 'filled', exist_ok=True)
-        os.makedirs(pred_path + 'post_processed', exist_ok=True)
-        cv2.imwrite(pred_path + 'filled/' + img_name, filled)
-        cv2.imwrite(pred_path + 'post_processed/' + img_name, denoised)
+        os.makedirs(pred_path + 'filled' + str(threshold), exist_ok=True)
+        os.makedirs(pred_path + 'post_processed'+ str(threshold), exist_ok=True)
+        cv2.imwrite(pred_path + 'filled'+ str(threshold) +'/' + img_name, filled)
+        cv2.imwrite(pred_path + 'post_processed' + str(threshold) + '/' + img_name, denoised)
 
 def evaluate(pred_path, label_path, threshold):
-    pred_path +='/post_processed/'
+    pred_path += '/post_processed' + str(threshold) + '/'
     label_list = get_png_filename_list(label_path)
     file_list = get_png_filename_list(pred_path)
 
