@@ -24,7 +24,7 @@ if __name__ == "__main__":
             predict(args.base_path, args.pred_name, args.load_model, input_dim=(args.input_dim, args.input_dim))
             if args.predictions:
                 print(f"WARNING: ignoring path to predicitions, using predictions from model {args.load_model}")
-            exec_evaluate(args.base_path + 'test/predictions/' + args.pred_name, args.labels, args.thresholds)
+            exec_evaluate(args.base_path + 'test/predictions/' + args.pred_name + '/', args.labels, args.thresholds)
         else:
             print("arguments missing.")
     elif args.predict:

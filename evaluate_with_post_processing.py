@@ -8,14 +8,8 @@ from utils.io.data import get_png_filename_list
 from utils.postprocessing.hole_filling import fill_holes
 from utils.postprocessing.remove_small_noise import remove_small_areas
 
-
-def evaluate(pred_path, threshold, file_list, label_path):
-    post_processed_path = pred_path
-
-    false_positives = 0
-    false_negatives = 0
-    true_positives = 0
-
+def post_process_predictions(pred_path, threshold):
+    file_list = get_png_filename_list(pred_path)
     for img_name in tqdm(file_list):
         img = cv2.imread(pred_path + img_name)
         _, threshed = cv2.threshold(img, threshold, 255, type=cv2.THRESH_BINARY)
@@ -25,31 +19,37 @@ def evaluate(pred_path, threshold, file_list, label_path):
         filled = fill_holes(threshed, threshold,0.1)
         denoised = remove_small_areas(filled, threshold, 0.05)
         ################################################################################################################
-        os.makedirs(post_processed_path + 'filled', exist_ok=True)
-        os.makedirs(post_processed_path + 'post_processed', exist_ok=True)
-        cv2.imwrite(post_processed_path + 'filled/' + img_name, filled)
-        cv2.imwrite(post_processed_path + 'post_processed/' + img_name, denoised)
+        os.makedirs(pred_path + 'filled', exist_ok=True)
+        os.makedirs(pred_path + 'post_processed', exist_ok=True)
+        cv2.imwrite(pred_path + 'filled/' + img_name, filled)
+        cv2.imwrite(pred_path + 'post_processed/' + img_name, denoised)
 
+def evaluate_threshold(pred_path, label_path, threshold, ):
+    label_list = get_png_filename_list(label_path)
 
-    for filename in tqdm(file_list):
-        label = cv2.imread(label_path + filename,0)
-        post_prosecced = cv2.imread(post_processed_path + 'post_processed/' + filename, 0)
+    false_positives = 0
+    false_negatives = 0
+    true_positives = 0
+
+    for label_name in tqdm(label_list):
+        label = cv2.imread(label_path + label_name,0)
+        post_processed = cv2.imread(pred_path + 'post_processed/' + label_name, 0)
         xdim = label.shape[0]
         ydim = label.shape[1]
         for x in range(xdim):
             for y in range(ydim):
-                if post_prosecced[x, y] and label[x, y] > threshold:
+                if post_processed[x, y] and label[x, y] > threshold:
                     true_positives += 1
-                if label[x, y] > threshold > post_prosecced[x, y]:
+                if label[x, y] > threshold > post_processed[x, y]:
                     false_negatives += 1
-                if label[x, y] < threshold < post_prosecced[x, y]:
+                if label[x, y] < threshold < post_processed[x, y]:
                     false_positives += 1
 
     IOU = float(true_positives) / (true_positives + false_negatives + false_positives)
     Dice = 2*float(true_positives) / (2*true_positives + false_negatives + false_positives)
 
     print("--------------------------------------------------------")
-    print("Weight file: ", post_processed_path.rsplit("/")[1])
+    print("Weight file: ", pred_path.rsplit("/")[1])
     print("--------------------------------------------------------")
     print("Threshold: ", threshold)
     print("True  pos = " + str(true_positives))
@@ -60,12 +60,15 @@ def evaluate(pred_path, threshold, file_list, label_path):
 
 def exec_evaluate(pred_path, label_path, thresholds=[120]):
     """Post processes model-output images and evaluates final results"""
-    img_filename_list = get_png_filename_list(pred_path)
-    print(img_filename_list)
     # test your own thresholds
+    file_list = get_png_filename_list(pred_path)
+    label_list = get_png_filename_list(label_path)
+    if not len(file_list) == len(label_list):
+        raise ValueError(
+            f"Number of labels does not fit number of images: #labels={len(label_list)}; #files={len(file_list)}")
     for threshold in thresholds:
-        evaluate(pred_path, threshold, img_filename_list, label_path)
-
+        post_process_predictions(pred_path, threshold)
+        evaluate_threshold(pred_path, label_path, threshold)
 
 if __name__ == "__main__":
     # adapt as needed
