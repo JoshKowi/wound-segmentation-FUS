@@ -24,25 +24,27 @@ def post_process_predictions(pred_path, threshold):
         cv2.imwrite(pred_path + 'filled/' + img_name, filled)
         cv2.imwrite(pred_path + 'post_processed/' + img_name, denoised)
 
-def evaluate_threshold(pred_path, label_path, threshold, ):
+def evaluate(pred_path, label_path, threshold):
+    pred_path +='/post_processed/'
     label_list = get_png_filename_list(label_path)
+    file_list = get_png_filename_list(pred_path)
 
     false_positives = 0
     false_negatives = 0
     true_positives = 0
 
-    for label_name in tqdm(label_list):
+    for img_name, label_name in tqdm(zip(file_list, label_list)):
         label = cv2.imread(label_path + label_name,0)
-        post_processed = cv2.imread(pred_path + 'post_processed/' + label_name, 0)
+        post_processed = cv2.imread(pred_path + label_name, 0)
         xdim = label.shape[0]
         ydim = label.shape[1]
         for x in range(xdim):
             for y in range(ydim):
-                if post_processed[x, y] and label[x, y] > threshold:
+                if post_processed[x, y] and label[x, y]:
                     true_positives += 1
-                if label[x, y] > threshold > post_processed[x, y]:
+                if label[x, y] and not post_processed[x, y]:
                     false_negatives += 1
-                if label[x, y] < threshold < post_processed[x, y]:
+                if not label[x, y] and post_processed[x, y]:
                     false_positives += 1
 
     IOU = float(true_positives) / (true_positives + false_negatives + false_positives)
@@ -68,11 +70,12 @@ def exec_evaluate(pred_path, label_path, thresholds=[120]):
             f"Number of labels does not fit number of images: #labels={len(label_list)}; #files={len(file_list)}")
     for threshold in thresholds:
         post_process_predictions(pred_path, threshold)
-        evaluate_threshold(pred_path, label_path, threshold)
+        evaluate(pred_path, label_path, threshold)
 
 if __name__ == "__main__":
     # adapt as needed
-    pred_dir = './data/fuseg_augmented/test/predictions/02-05-366389-short_train-14eps/'
-    label_path = './data/fuseg_augmented/test/labels/'
+    pred_dir = './data/fuseg_small/test/predictions/post-2025-02-05-366389-short_train-14eps/'
+    label_path = './data/fuseg_small/test/labels/'
     thresholds = [117]  # currentmax: 117
-    exec_evaluate(pred_dir, label_path, thresholds=thresholds)
+    # exec_evaluate(pred_dir, label_path, thresholds=thresholds)
+    evaluate(pred_dir, label_path, thresholds[0])
