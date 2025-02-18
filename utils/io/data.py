@@ -75,7 +75,7 @@ class DataGen:
                     # print('label: ', label_file_list[i])
                     if self.path_val_images and val:                   # If validation data is stored seperatly
                         image = cv2.imread(self.path_val_images + sample_image_filename, 1)
-                        label = cv2.imread(self.path_val_images + sample_label_filename, 0)
+                        label = cv2.imread(self.path_val_labels + sample_label_filename, 0)
                     elif train or val:
                         image = cv2.imread(self.path_train_images + sample_image_filename, 1)
                         label = cv2.imread(self.path_train_labels + sample_label_filename, 0)
@@ -231,10 +231,9 @@ def save_rgb_results(np_array, outpath, test_label_filenames_list):
 def save_history(model, model_name, training_history, dataset, n_filters, epoch, learning_rate, loss,
                  color_space, path=None, temp_name=None):
     save_weight_filename = temp_name if temp_name else str(datetime.datetime.now())
-    model.save('{}{}.hdf5'.format(path, save_weight_filename))
+    model.save(f'{path}{save_weight_filename}.keras')
     with open('{}{}.json'.format(path, save_weight_filename), 'w') as f:
         json.dump(training_history.history, f, indent=2)
-
     json_list = ['{}{}.json'.format(path, save_weight_filename)]
     for json_filename in json_list:
         with open(json_filename) as f:
