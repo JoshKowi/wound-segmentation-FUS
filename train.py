@@ -11,6 +11,7 @@ from models.SegNet import SegNet
 
 from utils.learning.metrics import dice_coef, precision, recall, IoU
 from utils.learning.losses import dice_coef_loss
+from utils.learning.callbacks import PrintValidations
 from utils.io.data import DataGen, save_results, save_history, load_data
 
 
@@ -54,14 +55,15 @@ def train_model(dataset, batch_size=8, epochs=100, patience=10, input_dims=(512,
     loss = 'binary_crossentropy'
 
     es = EarlyStopping(monitor='val_dice_coef', patience=patience, mode='max', restore_best_weights=True)
+    print_vals = PrintValidations(data_gen)
     #training_history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs
     #                             , validation_split=0.2, verbose=1, callbacks=[])
 
     model.summary()
-    model.compile(optimizer=Adam(learning_rate=learning_rate), loss=loss, metrics=[IoU, dice_coef, precision, recall])
+    model.compile(optimizer=Adam(learning_rate=learning_rate), loss=loss, metrics=[IoU, dice_coef, precision, recall], run_eagerly=False, steps_per_execution=4)
     training_history = model.fit(data_gen.generate_data(batch_size=batch_size, train=True),
                                            steps_per_epoch=int(data_gen.get_num_data_points(train=True) / batch_size),
-                                           callbacks=[es],
+                                           callbacks=[es, print_vals],
                                            validation_data=data_gen.generate_data(batch_size=batch_size, val=True),
                                            validation_steps=int(data_gen.get_num_data_points(val=True) / batch_size),
                                            epochs=epochs)
